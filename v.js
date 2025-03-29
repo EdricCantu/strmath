@@ -59,8 +59,8 @@ function add(base, ...nums){
       });
     //normalization: pad sides of decimal with zero to have everything the same length
       nums = nums.map((num)=>{
-        num[0].padStart(mostBefore, base[0]);
-        num[1].padEnd(mostAfter, base[1]);
+        num[0] = num[0].padStart(mostBefore, base[0]);
+        num[1] = num[1].padEnd(mostAfter, base[1]);
         return num;
       })
     //normalization: finalize
