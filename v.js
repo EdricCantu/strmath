@@ -125,3 +125,64 @@ function addNorm(base, ...ints){
   }
   return result.join("");
 }
+
+function genSubtractionTable(base) {
+  var table = {};
+  for (const minuendInd in base) {
+    const minuend = base[minuendInd];
+    for (const subtrahendInd in base) {
+      const subtrahend = base[subtrahendInd];
+      const key = minuend + "-" + subtrahend;
+      const hiddenDifference = parseInt(minuendInd) - parseInt(subtrahendInd);
+      if (hiddenDifference < 0) {
+        table[key] = [base[hiddenDifference + base.length], base[1]]; // Borrow needed
+      } else {
+        table[key] = [base[hiddenDifference]]; // No borrow
+      }
+    }
+  }
+  return table;
+}
+
+function subNorm(base, ...ints) {
+  var result = ints.shift().split("");//setting as zero won't work out
+  var resultBuffer = result;
+  const subtractionTable = genSubtractionTable(base);
+  
+  function borrowOne(index) {
+    if (index === result.length) {//index 3 needed but doesn't exist, index 3 = length 3. Code wants to borrow a "ten" it doesn't have. 
+      console.log("Result is negative. Resetting resultBuffer and swapping current minuend and subtrahend to obtain negative value.");
+      throw "swap";
+    }
+    const smallResult = subtractionTable[resultBuffer[index] + "-" + base[1]];
+    resultBuffer[index] = smallResult[0];
+    if (smallResult.length > 1) {
+      borrowOne(parseInt(index) + 1);
+    }
+  }
+
+  for (const intInd in ints) {
+    const int = ints[intInd];
+    digits: for (let digitInd in int) {
+      const digit = int[digitInd];
+      const smallResult = subtractionTable[resultBuffer[digitInd] + "-" + digit];
+      resultBuffer[digitInd] = smallResult[0]; // Subtract ones place
+      if (smallResult.length > 1) { // Borrow required
+        try{
+          borrowOne(parseInt(digitInd) + 1);
+        }catch(e){
+          if(e === "swap"){
+            //                         get negative,        and if more, add them since: sub(neg(x), y) = neg(add(x y))
+            result = addNorm(base, subNorm(base, int, result.join("")), ...ints.slice(intInd+1));
+            
+            return "-"+result;
+          }else{
+            throw e;
+          }
+        }
+      }
+      result = resultBuffer;
+    }
+  }
+  return result.join("");
+}
