@@ -3,7 +3,7 @@
 function _arg(ind){return "Argument "+(ind+2)}
 function _val(ind){return arg(ind)+" aka Addend "+(ind+1)}
 function _cv(charInd,numInd, charVal,numVal){return `Index ${ind} aka Character ${ind+1} of ${_val(numInd)}: "${charVal}" of "${numVal}"`}
-function add(base, nums...){
+function add(base, ...nums){
   //verification and normalization
     //verification: check base
       //check if base exists
