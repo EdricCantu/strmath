@@ -56,35 +56,28 @@ function add(base, nums...){
           mostAfter = Math.max(mostAfter, num[1].length);
           return num;
       });
-  if(!nonIntegers){//if all of nums are integers, remove decimal, and calculate with BigInt
-    return nums
-      .reduce((acc,add)=>(acc+BigInt(num[0])), 0n)
-      .toString();
-  }else{//if there is at least noninteger in nums, continue with noninteger process
-    //still part of verification and normalization
-      //normalization: pad sides of decimal with zero to have everything the same length
-        nums = nums.map((num)=>{
-          num[0].padStart(mostBefore, base[0]);
-          num[1].padEnd(mostAfter, base[1]);
-          return num;
-        })
-      //normalization: finalize
-        //mark decimal place count,
-          const decimals = nums[0][1].length //get first element, right side of decimal
-        //blindly join all places and reverse
-          nums = nums.map((num)=>(   (num[0] + num[1]).split("").reverse().join("")   ))
-    var sum = addNorm(nums);
-    //unnormalize sum
-      sum = sum.split("");
-      sum.splice(decimals, 0, "."); //add decimal point back in
-      sum = sum.reverse().join("");
-      //remove leading and trailing zeroes
-        sum.replaceAll(base[0], " ");
-        num.trim();
-        num.replaceAll(" ", base[0]);
-    return sum; //return unnormalized sum
-  }
+    //normalization: pad sides of decimal with zero to have everything the same length
+      nums = nums.map((num)=>{
+        num[0].padStart(mostBefore, base[0]);
+        num[1].padEnd(mostAfter, base[1]);
+        return num;
+      })
+    //normalization: finalize
+      //mark decimal place count,
+        const decimals = nums[0][1].length //get first element, right side of decimal
+      //blindly join all places and reverse
+        nums = nums.map((num)=>(   (num[0] + num[1]).split("").reverse().join("")   ))
+  var sum = addNorm(base, ...nums);
+  //unnormalize sum
+    sum = sum.split("");
+    sum.splice(decimals, 0, "."); //add decimal point back in
+    sum = sum.reverse().join("");
+    //remove leading and trailing zeroes
+      sum.replaceAll(base[0], " ");
+      num.trim();
+      num.replaceAll(" ", base[0]);
+  return sum; //return unnormalized sum
 }
-function addNorm(...nums){
+function addNorm(base, ...nums){
   
 }
