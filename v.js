@@ -35,7 +35,7 @@ function add(base, ...nums){
           }
         //Normalization: Add decimal to end of integer if no decimal found.
           if(!decimalPoints){
-            decimals++;
+            decimalPoints++;
             num += ".";
           }
         //normalization: remove extraneous leading and trailing "zeroes"
