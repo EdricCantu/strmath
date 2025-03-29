@@ -1,3 +1,5 @@
+//normalized just means little endian respective to the base.
+
 function _arg(ind){return "Argument "+(ind+2)}
 function _val(ind){return arg(ind)+" aka Addend "+(ind+1)}
 function _cv(charInd,numInd, charVal,numVal){return `Index ${ind} aka Character ${ind+1} of ${_val(numInd)}: "${charVal}" of "${numVal}"`}
@@ -22,18 +24,17 @@ function add(base, nums...){
         if(!num.length) throw new Error(`What is this? NOTHING! ${_val(numInd)} == ""`); //check if num is an empty string
         if(num === ".") throw new Error(`... ${_val(numInd)} == "."`); //check if num is just a decimal point
         //verification iterate through characters of num to check if they are included in 
-          var decimals = 0; for(const charInd in num){
+          var decimalPoints = 0; for(const charInd in num){
             const char = num[charInd];//
             if(char === "."){
-              if(++decimals > 1) throw new Error(`What is this? I don't think numbers should have more than one decimal point! ${_cv(charInd,numInd,char,num)}`);
+              if(++decimalPoints > 1) throw new Error(`What is this? I don't think numbers should have more than one decimal point! ${_cv(charInd,numInd,char,num)}`);
               nonIntegers++;
               continue;
             }
             if(!base.includes(char)) throw new Error(`What is this? I don't recognize that digit at ${_chr(charInd)} of ${_val(numInd)}: "${char} of ${num}"`);
           }
         //Normalization: Add decimal to end of integer if no decimal found.
-          
-          if(!decimals){
+          if(!decimalPoints){
             decimals++;
             num += ".";
           }
@@ -64,20 +65,59 @@ function add(base, nums...){
       })
     //normalization: finalize
       //mark decimal place count,
-        const decimals = nums[0][1].length //get first element, right side of decimal
+        const decimalPlaces = nums[0][1].length //get first element, right side of decimal
       //blindly join all places and reverse
         nums = nums.map((num)=>(   (num[0] + num[1]).split("").reverse().join("")   ))
   var sum = addNorm(base, ...nums);
   //unnormalize sum
     sum = sum.split("");
-    sum.splice(decimals, 0, "."); //add decimal point back in
+    sum.splice(decimalPlaces, 0, "."); //add decimal point back in
     sum = sum.reverse().join("");
     //remove leading and trailing zeroes
       sum.replaceAll(base[0], " ");
-      num.trim();
+      num.trim(); //if addNorm was done right, there should be no leading zeroes.
       num.replaceAll(" ", base[0]);
   return sum; //return unnormalized sum
 }
-function addNorm(base, ...nums){
-  
+function genAdditionTable(base){  
+  var table = {};
+  for(const addend1Ind in base){
+    const addend1 = base[addend1Ind];
+    for(const addend2Ind in base){
+      const addend2 = base[addend2Ind];
+      const key = addend1+"+"+addend2;
+      const hiddenSum = parseInt(addend1Ind)+parseInt(addend2Ind);
+      if(hiddenSum >= base.length){ //9+2 >= 10
+        table[key] = [base[hiddenSum - base.length], base[1]];  // table["9+2"] = [11 - 10, 1] = [1,1]
+      }else{
+        table[key] = [base[hiddenSum]];
+      }
+    }
+  }
+  return table;
+}
+function addNorm(base, ...ints){
+  var result = base[0].repeat(ints[0].length); //initialize result with 0, normalized
+  const additionTable = genAditionTable(base);
+  function carryTheOne(index){
+    if(index === result.length){//index 3 needed but doesn't exist, index 3 = length 3. Result currently looks like (b10) "999" =, or (b16) "FFF", and needs to add 1 more to make "0001" (norm)
+      result += base[0];//turn (b10) "999" or (b16) "FFF" into (norm) "9990" or "FFF0" so there's enough digits to use to make "0001"
+    }
+    const smallResult = additionTable[base[1]+"+"+result[index]];
+    result[index] = smallResult[0]; // add ones place
+    if(smallResult.length > 1){ //we need to carry the "one"
+      carryTheOne(index+1);
+    }
+  }
+  for(const intInd in ints){//iterate integer by integer
+    const int = ints[intInd];
+    for(const digitInd in int){//iterate digit by digit
+      const digit = int[digitInd];
+      const smallResult = additionTable[digit+"+"+result[digitInd]]
+      result[digitInd] = smallResult[0]; // add ones place
+      if(smallResult.length > 1){ //we need to carry the "one"
+        carryTheOne(digitInd+1);
+      }
+    }
+  }
 }
