@@ -75,8 +75,11 @@ function add(base, ...nums){
     sum = sum.reverse().join("");
     //remove leading and trailing zeroes
       sum.replaceAll(base[0], " ");
-      num.trim(); //if addNorm was done right, there should be no leading zeroes.
-      num.replaceAll(" ", base[0]);
+      sum.trim(); //if addNorm was done right, there should be no leading zeroes.
+      sum.replaceAll(" ", base[0]);
+  if(!nonIntegers){//if all of nums are integers
+    return sum.slice(0,-2);
+  }
   return sum; //return unnormalized sum
 }
 function genAdditionTable(base){  
@@ -97,16 +100,16 @@ function genAdditionTable(base){
   return table;
 }
 function addNorm(base, ...ints){
-  var result = base[0].repeat(ints[0].length); //initialize result with 0, normalized
-  const additionTable = genAditionTable(base);
+  var result = Array(ints[0].length).fill(base[0]); //initialize result with 0, normalized
+  const additionTable = genAdditionTable(base);
   function carryTheOne(index){
     if(index === result.length){//index 3 needed but doesn't exist, index 3 = length 3. Result currently looks like (b10) "999" =, or (b16) "FFF", and needs to add 1 more to make "0001" (norm)
-      result += base[0];//turn (b10) "999" or (b16) "FFF" into (norm) "9990" or "FFF0" so there's enough digits to use to make "0001"
+      result.push(base[0]);//turn (b10) "999" or (b16) "FFF" into (norm) "9990" or "FFF0" so there's enough digits to use to make "0001"
     }
     const smallResult = additionTable[base[1]+"+"+result[index]];
     result[index] = smallResult[0]; // add ones place
     if(smallResult.length > 1){ //we need to carry the "one"
-      carryTheOne(index+1);
+      carryTheOne(parseInt(index)+1);
     }
   }
   for(const intInd in ints){//iterate integer by integer
@@ -116,8 +119,9 @@ function addNorm(base, ...ints){
       const smallResult = additionTable[digit+"+"+result[digitInd]]
       result[digitInd] = smallResult[0]; // add ones place
       if(smallResult.length > 1){ //we need to carry the "one"
-        carryTheOne(digitInd+1);
+        carryTheOne(parseInt(digitInd)+1);
       }
     }
   }
+  return result.join("");
 }
