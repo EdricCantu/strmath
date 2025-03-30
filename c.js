@@ -168,7 +168,6 @@ class StrMath{
         const elem = base[elemInd];/*SIGILL when debugging and stepping here? Why!!!!!!! happens every time!
         debugger; new StrMath.StrBase(..."0123456789");
         */
-        debugger;
         includesNonStrings = includesNonStrings || (typeof(elem)!=="string") || (elem.length !== 1);
         // if already true, no need to evaluate further   |||||||||||                      ||||||
         //            if false, check if elem is not a string. if false and it is a string ||||||
