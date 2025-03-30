@@ -46,7 +46,7 @@ function add(base, ...nums){
         //normalization: add back in lone trailing and/or leading zero,
           //if one side of the decimal or both used to have only "zeroes"`
             //which the snippet titled
-              // "  normalization: prevent extraneous leading and trailing "zeroes"  "
+              // `  normalization: prevent extraneous leading and trailing "zeroes"  `
             //removed,
           //or if the original input was .XXX (aka 0.XXX) or XXX. (aka XXX.0)
           if(num[0] === ".") num = base[0] + num;//prevent leading decimal
@@ -103,8 +103,8 @@ function addNorm(base, ...ints){
   var result = Array(ints[0].length).fill(base[0]); //initialize result with 0, normalized
   const additionTable = genAdditionTable(base);
   function carryTheOne(index){
-    if(index === result.length){//index 3 needed but doesn't exist, index 3 = length 3. Result currently looks like (b10) "999" =, or (b16) "FFF", and needs to add 1 more to make "0001" (norm)
-      result.push(base[0]);//turn (b10) "999" or (b16) "FFF" into (norm) "9990" or "FFF0" so there's enough digits to use to make "0001"
+    if(index === result.length){//index 3 needed but doesn't exist, index 3 = length 3. Result currently looks like (b10) "999" =, or (b16) "FFF", and needs to add 1 more to make "0001" (LE)
+      result.push(base[0]);//turn (b10) "999" or (b16) "FFF" into (LE) "9990" or "FFF0" so there's enough digits to use to make "0001"
     }
     const smallResult = additionTable[base[1]+"+"+result[index]];
     result[index] = smallResult[0]; // add ones place
