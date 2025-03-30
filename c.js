@@ -5,7 +5,7 @@ class StrMath{
     this.defaultBase = base;
     this.#afterInit = true;
     this.StrNum = class StrNum extends StrMath.StrNum {
-      constructor(value) {super(base, value)}
+      constructor(value, etc = {frac: 0,sign:1}) {super(base, value, etc)}
     };
   }
   set defaultBase(value){
@@ -26,6 +26,9 @@ class StrMath{
   static StrNum = class StrNum{
     #value = null;
     #base = null;
+    #frac = null;
+    #sign = null;
+    #endianness = null;
     constructor(base, value, etc = {frac:0,sign:1}){//positive integer in big endian
       /**********   etc   **********\
         {frac: 4 }:       whole digits     12345.6789  4 fractional digits
@@ -78,15 +81,11 @@ class StrMath{
       this.#value = value;
       
     }
-    #frac = null;
-    #sign = null;
-    #value = null;
-    #endianness = null;
     get endianness(){
       return this.#endianness;
     }
     set endianness(value){
-      if(!([-1,1].includes(value)) throw TypeError("Endianness must be either little (-1) or big (1)!");
+      if(!([-1,1].includes(value))) throw TypeError("Endianness must be either little (-1) or big (1)!");
       this.#endianness = value;
     }
     get value(){
@@ -101,20 +100,22 @@ class StrMath{
     get base(){
       return this.#base;
     }
-    get string(){
-      var result = this.value;
+    get presentation(){
+      var result = [...this.value];
+      if(this.frac){//we already determined it isn't out of range
+        result.splice(this.frac, 0,".")
+      }
       if(this.endianness === 1){//if meant to display as big endian, convert little endian used for processing to big endian
         result = result.reverse();
       }
       if(this.base.safeForString){//show as string if all items in base are single characters
-        result = result.join("");
-        if()////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        return result.join("");
       }else{
-      
+        return result;
       }
     }
     toString(){
-      return this.string;
+      return this.string.toString();
     }
   }
   static StrBase = class StrBase{
@@ -164,7 +165,7 @@ class StrMath{
         bigint(int){return `bigint(${int})`}
       }
       for(const elemInd in base){
-        const elem = base[elemInd];
+        const elem = base[elemInd];//SIGILL when debugging and stepping here? Why!!!!!!! happens every time!
         includesNonStrings = includesNonStrings || (typeof(elem)!=="string") || (elem.length === 1);
         // if already true, no need to evaluate further   |||||||||||                      ||||||
         //            if false, check if elem is not a string. if false and it is a string ||||||
